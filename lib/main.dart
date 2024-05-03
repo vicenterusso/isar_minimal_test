@@ -27,31 +27,31 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> init() async {
     final dir = await getApplicationDocumentsDirectory();
-    isar = await Isar.openAsync(
-      name: 'isar_minimimal_test',
-      schemas: [UserSchema],
+    isar = await Isar.open(
+      [UserSchema],
       directory: dir.path,
     );
 
     final newUser = User()
-      ..id = isar!.users.autoIncrement()
       ..name = 'Jane Doe'
       ..age = 36;
 
-    await isar!.writeAsync((isar) {
-      return isar.users.put(newUser);
+    await isar!.writeTxn(() {
+      return isar!.users.put(newUser);
     });
 
-    final existingUser = isar!.users.get(newUser.id);
-    print('${existingUser?.name} ${existingUser?.id}');
-    if (existingUser != null) {
-      var deleted = await isar!.writeAsync((isar) {
-        return isar.users.delete(existingUser.id);
-      });
-      if (deleted == true) {
-        print('deleted record');
-      } else {
-        print('dont deleted record');
+    if (newUser.id != null) {
+      final existingUser = await isar!.users.get(newUser.id!);
+      print('${existingUser?.name} ${existingUser?.id}');
+      if (existingUser != null) {
+        var deleted = await isar!.writeTxn(() {
+          return isar!.users.delete(existingUser.id!);
+        });
+        if (deleted == true) {
+          print('deleted record');
+        } else {
+          print('dont deleted record');
+        }
       }
     }
   }
