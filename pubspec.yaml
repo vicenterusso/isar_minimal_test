@@ -1,0 +1,45 @@
+name: isar_minimal_test
+description: A new Flutter project.
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+
+  cupertino_icons: ^1.0.2
+  path_provider: ^2.1.2
+  isar:
+    hosted: https://pub.isar-community.dev
+    version: ^3.1.6
+  isar_flutter_libs:
+    hosted: https://pub.isar-community.dev
+    version: ^3.1.6
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  build_runner: any
+  flutter_lints: ^2.0.0
+  isar_generator:
+    hosted: https://pub.isar-community.dev
+    version: ^3.1.6
+
+
+flutter:
+  uses-material-design: true
+
+# dependency_overrides:
+#   isar:
+#     path: ../isar/packages/isar
+#   isar_flutter_libs:
+#     path: ../isar/packages/isar_flutter_libs
+    
+# dev_dependency_overrides:
+#   isar_generator:
+#     path: ../isar/packages/isar_generator
+    
