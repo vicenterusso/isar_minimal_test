@@ -1,3 +1,4 @@
+import 'package:faker/faker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
@@ -27,12 +28,8 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> init() async {
-    Isar? isar;
     if (kIsWeb) {
-      // For web, make sure to initalize before
       await Isar.initialize();
-
-      // Use sync methods
       isar = Isar.open(
         name: 'isar_minimimal_test',
         schemas: [UserSchema],
@@ -47,28 +44,6 @@ class _MyAppState extends State<MyApp> {
         directory: dir.path,
       );
     }
-
-    final newUser = User()
-      ..id = isar.users.autoIncrement()
-      ..name = 'Jane Doe'
-      ..age = 36;
-
-    isar.write((isar) {
-      return isar.users.put(newUser);
-    });
-
-    final existingUser = isar.users.get(newUser.id);
-    print('${existingUser?.name} ${existingUser?.id}');
-    if (existingUser != null) {
-      var deleted = isar.write((isar) {
-        return isar.users.delete(existingUser.id);
-      });
-      if (deleted == true) {
-        print('deleted record');
-      } else {
-        print('dont deleted record');
-      }
-    }
   }
 
   @override
@@ -79,8 +54,69 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Isar Demo'),
         ),
-        body: const Center(
-          child: Text('Hello World'),
+        body: Column(
+          children: [
+            const Center(
+              child: Text('Hello World'),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            ElevatedButton(
+              onPressed: () {
+                //
+
+                final newUser = User()
+                  ..id = isar!.users.autoIncrement()
+                  ..name = faker.person.name()
+                  ..email = faker.internet.email();
+
+                isar!.write((isar) {
+                  return isar.users.put(newUser);
+                });
+
+                setState(() {});
+                //
+              },
+              child: const Text('Add'),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            ElevatedButton(
+              onPressed: () {
+                //
+
+                final existingUser = isar!.users.where().findFirst();
+                print('${existingUser?.name} ${existingUser?.id}');
+                if (existingUser != null) {
+                  var deleted = isar!.write((isar) {
+                    return isar.users.delete(existingUser.id);
+                  });
+                  if (deleted == true) {
+                    print('deleted record');
+                  } else {
+                    print('dont deleted record');
+                  }
+                }
+
+                setState(() {});
+                //
+              },
+              child: const Text('Remove'),
+            ),
+            // ListView.builder(
+            //   itemCount: isar!.users.count(),
+            //   itemBuilder: (context, index) {
+            //     var all = isar!.users.where().findAll();
+
+            //     return Text("asd");
+            //   },
+            // ),
+            for (var item
+                in (isar == null ? [] : isar!.users.where().findAll()))
+              Text('${item.id}: ${item.name} (${item.email})'),
+          ],
         ),
       ),
     );

@@ -19,6 +19,8 @@ dependencies:
     hosted: https://pub.isar-community.dev
     version: ^4.0.2
 
+  faker: ^2.1.0    
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

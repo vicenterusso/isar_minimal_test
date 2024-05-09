@@ -25,8 +25,8 @@ const UserSchema = IsarGeneratedSchema(
         type: IsarType.string,
       ),
       IsarPropertySchema(
-        name: 'age',
-        type: IsarType.long,
+        name: 'email',
+        type: IsarType.string,
       ),
     ],
     indexes: [],
@@ -49,7 +49,14 @@ int serializeUser(IsarWriter writer, User object) {
       IsarCore.writeString(writer, 1, value);
     }
   }
-  IsarCore.writeLong(writer, 2, object.age ?? -9223372036854775808);
+  {
+    final value = object.email;
+    if (value == null) {
+      IsarCore.writeNull(writer, 2);
+    } else {
+      IsarCore.writeString(writer, 2, value);
+    }
+  }
   return object.id;
 }
 
@@ -58,14 +65,7 @@ User deserializeUser(IsarReader reader) {
   final object = User();
   object.id = IsarCore.readId(reader);
   object.name = IsarCore.readString(reader, 1);
-  {
-    final value = IsarCore.readLong(reader, 2);
-    if (value == -9223372036854775808) {
-      object.age = null;
-    } else {
-      object.age = value;
-    }
-  }
+  object.email = IsarCore.readString(reader, 2);
   return object;
 }
 
@@ -77,14 +77,7 @@ dynamic deserializeUserProp(IsarReader reader, int property) {
     case 1:
       return IsarCore.readString(reader, 1);
     case 2:
-      {
-        final value = IsarCore.readLong(reader, 2);
-        if (value == -9223372036854775808) {
-          return null;
-        } else {
-          return value;
-        }
-      }
+      return IsarCore.readString(reader, 2);
     default:
       throw ArgumentError('Unknown property: $property');
   }
@@ -94,7 +87,7 @@ sealed class _UserUpdate {
   bool call({
     required int id,
     String? name,
-    int? age,
+    String? email,
   });
 }
 
@@ -107,13 +100,13 @@ class _UserUpdateImpl implements _UserUpdate {
   bool call({
     required int id,
     Object? name = ignore,
-    Object? age = ignore,
+    Object? email = ignore,
   }) {
     return collection.updateProperties([
           id
         ], {
           if (name != ignore) 1: name as String?,
-          if (age != ignore) 2: age as int?,
+          if (email != ignore) 2: email as String?,
         }) >
         0;
   }
@@ -123,7 +116,7 @@ sealed class _UserUpdateAll {
   int call({
     required List<int> id,
     String? name,
-    int? age,
+    String? email,
   });
 }
 
@@ -136,11 +129,11 @@ class _UserUpdateAllImpl implements _UserUpdateAll {
   int call({
     required List<int> id,
     Object? name = ignore,
-    Object? age = ignore,
+    Object? email = ignore,
   }) {
     return collection.updateProperties(id, {
       if (name != ignore) 1: name as String?,
-      if (age != ignore) 2: age as int?,
+      if (email != ignore) 2: email as String?,
     });
   }
 }
@@ -154,7 +147,7 @@ extension UserUpdate on IsarCollection<int, User> {
 sealed class _UserQueryUpdate {
   int call({
     String? name,
-    int? age,
+    String? email,
   });
 }
 
@@ -167,11 +160,11 @@ class _UserQueryUpdateImpl implements _UserQueryUpdate {
   @override
   int call({
     Object? name = ignore,
-    Object? age = ignore,
+    Object? email = ignore,
   }) {
     return query.updateProperties(limit: limit, {
       if (name != ignore) 1: name as String?,
-      if (age != ignore) 2: age as int?,
+      if (email != ignore) 2: email as String?,
     });
   }
 }
@@ -191,13 +184,13 @@ class _UserQueryBuilderUpdateImpl implements _UserQueryUpdate {
   @override
   int call({
     Object? name = ignore,
-    Object? age = ignore,
+    Object? email = ignore,
   }) {
     final q = query.build();
     try {
       return q.updateProperties(limit: limit, {
         if (name != ignore) 1: name as String?,
-        if (age != ignore) 2: age as int?,
+        if (email != ignore) 2: email as String?,
       });
     } finally {
       q.close();
@@ -475,93 +468,183 @@ extension UserQueryFilter on QueryBuilder<User, User, QFilterCondition> {
     });
   }
 
-  QueryBuilder<User, User, QAfterFilterCondition> ageIsNull() {
+  QueryBuilder<User, User, QAfterFilterCondition> emailIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(const IsNullCondition(property: 2));
     });
   }
 
-  QueryBuilder<User, User, QAfterFilterCondition> ageIsNotNull() {
+  QueryBuilder<User, User, QAfterFilterCondition> emailIsNotNull() {
     return QueryBuilder.apply(not(), (query) {
       return query.addFilterCondition(const IsNullCondition(property: 2));
     });
   }
 
-  QueryBuilder<User, User, QAfterFilterCondition> ageEqualTo(
-    int? value,
-  ) {
+  QueryBuilder<User, User, QAfterFilterCondition> emailEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         EqualCondition(
           property: 2,
           value: value,
+          caseSensitive: caseSensitive,
         ),
       );
     });
   }
 
-  QueryBuilder<User, User, QAfterFilterCondition> ageGreaterThan(
-    int? value,
-  ) {
+  QueryBuilder<User, User, QAfterFilterCondition> emailGreaterThan(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         GreaterCondition(
           property: 2,
           value: value,
+          caseSensitive: caseSensitive,
         ),
       );
     });
   }
 
-  QueryBuilder<User, User, QAfterFilterCondition> ageGreaterThanOrEqualTo(
-    int? value,
-  ) {
+  QueryBuilder<User, User, QAfterFilterCondition> emailGreaterThanOrEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         GreaterOrEqualCondition(
           property: 2,
           value: value,
+          caseSensitive: caseSensitive,
         ),
       );
     });
   }
 
-  QueryBuilder<User, User, QAfterFilterCondition> ageLessThan(
-    int? value,
-  ) {
+  QueryBuilder<User, User, QAfterFilterCondition> emailLessThan(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         LessCondition(
           property: 2,
           value: value,
+          caseSensitive: caseSensitive,
         ),
       );
     });
   }
 
-  QueryBuilder<User, User, QAfterFilterCondition> ageLessThanOrEqualTo(
-    int? value,
-  ) {
+  QueryBuilder<User, User, QAfterFilterCondition> emailLessThanOrEqualTo(
+    String? value, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         LessOrEqualCondition(
           property: 2,
           value: value,
+          caseSensitive: caseSensitive,
         ),
       );
     });
   }
 
-  QueryBuilder<User, User, QAfterFilterCondition> ageBetween(
-    int? lower,
-    int? upper,
-  ) {
+  QueryBuilder<User, User, QAfterFilterCondition> emailBetween(
+    String? lower,
+    String? upper, {
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         BetweenCondition(
           property: 2,
           lower: lower,
           upper: upper,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<User, User, QAfterFilterCondition> emailStartsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        StartsWithCondition(
+          property: 2,
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<User, User, QAfterFilterCondition> emailEndsWith(
+    String value, {
+    bool caseSensitive = true,
+  }) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        EndsWithCondition(
+          property: 2,
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<User, User, QAfterFilterCondition> emailContains(String value,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        ContainsCondition(
+          property: 2,
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<User, User, QAfterFilterCondition> emailMatches(String pattern,
+      {bool caseSensitive = true}) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        MatchesCondition(
+          property: 2,
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<User, User, QAfterFilterCondition> emailIsEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const EqualCondition(
+          property: 2,
+          value: '',
+        ),
+      );
+    });
+  }
+
+  QueryBuilder<User, User, QAfterFilterCondition> emailIsNotEmpty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        const GreaterCondition(
+          property: 2,
+          value: '',
         ),
       );
     });
@@ -604,15 +687,24 @@ extension UserQuerySortBy on QueryBuilder<User, User, QSortBy> {
     });
   }
 
-  QueryBuilder<User, User, QAfterSortBy> sortByAge() {
+  QueryBuilder<User, User, QAfterSortBy> sortByEmail(
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(2);
+      return query.addSortBy(
+        2,
+        caseSensitive: caseSensitive,
+      );
     });
   }
 
-  QueryBuilder<User, User, QAfterSortBy> sortByAgeDesc() {
+  QueryBuilder<User, User, QAfterSortBy> sortByEmailDesc(
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(2, sort: Sort.desc);
+      return query.addSortBy(
+        2,
+        sort: Sort.desc,
+        caseSensitive: caseSensitive,
+      );
     });
   }
 }
@@ -644,15 +736,17 @@ extension UserQuerySortThenBy on QueryBuilder<User, User, QSortThenBy> {
     });
   }
 
-  QueryBuilder<User, User, QAfterSortBy> thenByAge() {
+  QueryBuilder<User, User, QAfterSortBy> thenByEmail(
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(2);
+      return query.addSortBy(2, caseSensitive: caseSensitive);
     });
   }
 
-  QueryBuilder<User, User, QAfterSortBy> thenByAgeDesc() {
+  QueryBuilder<User, User, QAfterSortBy> thenByEmailDesc(
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(2, sort: Sort.desc);
+      return query.addSortBy(2, sort: Sort.desc, caseSensitive: caseSensitive);
     });
   }
 }
@@ -665,9 +759,10 @@ extension UserQueryWhereDistinct on QueryBuilder<User, User, QDistinct> {
     });
   }
 
-  QueryBuilder<User, User, QAfterDistinct> distinctByAge() {
+  QueryBuilder<User, User, QAfterDistinct> distinctByEmail(
+      {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(2);
+      return query.addDistinctBy(2, caseSensitive: caseSensitive);
     });
   }
 }
@@ -685,7 +780,7 @@ extension UserQueryProperty1 on QueryBuilder<User, User, QProperty> {
     });
   }
 
-  QueryBuilder<User, int?, QAfterProperty> ageProperty() {
+  QueryBuilder<User, String?, QAfterProperty> emailProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(2);
     });
@@ -705,7 +800,7 @@ extension UserQueryProperty2<R> on QueryBuilder<User, R, QAfterProperty> {
     });
   }
 
-  QueryBuilder<User, (R, int?), QAfterProperty> ageProperty() {
+  QueryBuilder<User, (R, String?), QAfterProperty> emailProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(2);
     });
@@ -726,7 +821,7 @@ extension UserQueryProperty3<R1, R2>
     });
   }
 
-  QueryBuilder<User, (R1, R2, int?), QOperations> ageProperty() {
+  QueryBuilder<User, (R1, R2, String?), QOperations> emailProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addProperty(2);
     });
