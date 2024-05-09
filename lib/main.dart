@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
 import 'package:isar_minimal_test/user.dart';
@@ -26,26 +27,40 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> init() async {
-    final dir = await getApplicationDocumentsDirectory();
-    isar = await Isar.openAsync(
-      name: 'isar_minimimal_test',
-      schemas: [UserSchema],
-      directory: dir.path,
-    );
+    Isar? isar;
+    if (kIsWeb) {
+      // For web, make sure to initalize before
+      await Isar.initialize();
+
+      // Use sync methods
+      isar = Isar.open(
+        name: 'isar_minimimal_test',
+        schemas: [UserSchema],
+        directory: Isar.sqliteInMemory,
+        engine: IsarEngine.sqlite,
+      );
+    } else {
+      final dir = await getApplicationDocumentsDirectory();
+      isar = await Isar.openAsync(
+        name: 'isar_minimimal_test',
+        schemas: [UserSchema],
+        directory: dir.path,
+      );
+    }
 
     final newUser = User()
-      ..id = isar!.users.autoIncrement()
+      ..id = isar.users.autoIncrement()
       ..name = 'Jane Doe'
       ..age = 36;
 
-    await isar!.writeAsync((isar) {
+    isar.write((isar) {
       return isar.users.put(newUser);
     });
 
-    final existingUser = isar!.users.get(newUser.id);
+    final existingUser = isar.users.get(newUser.id);
     print('${existingUser?.name} ${existingUser?.id}');
     if (existingUser != null) {
-      var deleted = await isar!.writeAsync((isar) {
+      var deleted = isar.write((isar) {
         return isar.users.delete(existingUser.id);
       });
       if (deleted == true) {
