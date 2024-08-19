@@ -39,7 +39,7 @@ const UserSchema = CollectionSchema(
   getId: _userGetId,
   getLinks: _userGetLinks,
   attach: _userAttach,
-  version: '3.1.6',
+  version: '3.1.8',
 );
 
 int _userEstimateSize(

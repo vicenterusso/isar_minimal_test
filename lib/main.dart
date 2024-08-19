@@ -41,6 +41,16 @@ class _MyAppState extends State<MyApp> {
     });
 
     if (newUser.id != null) {
+      final userFindAll = await isar!.users.where().findAll();
+      print('userFindAll? ${userFindAll.length}');
+      final userFindFirst = await isar!.users
+          .where()
+          .idEqualTo(
+            newUser.id!,
+          )
+          .findFirst();
+      print('userFindFirst? ${userFindFirst}');
+
       final existingUser = await isar!.users.get(newUser.id!);
       print('${existingUser?.name} ${existingUser?.id}');
       if (existingUser != null) {
