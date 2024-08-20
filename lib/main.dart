@@ -2,6 +2,7 @@ import 'package:faker/faker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:isar/isar.dart';
+import 'package:isar_minimal_test/downloader_task_collection.dart';
 import 'package:isar_minimal_test/user.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -32,7 +33,10 @@ class _MyAppState extends State<MyApp> {
       await Isar.initialize();
       isar = Isar.open(
         name: 'isar_minimimal_test',
-        schemas: [UserSchema],
+        schemas: [
+          UserSchema,
+          DownloaderTaskCollectionSchema,
+        ],
         directory: Isar.sqliteInMemory,
         engine: IsarEngine.sqlite,
       );
@@ -40,7 +44,10 @@ class _MyAppState extends State<MyApp> {
       final dir = await getApplicationDocumentsDirectory();
       isar = await Isar.openAsync(
         name: 'isar_minimimal_test',
-        schemas: [UserSchema],
+        schemas: [
+          UserSchema,
+          DownloaderTaskCollectionSchema,
+        ],
         directory: dir.path,
       );
     }
@@ -104,6 +111,33 @@ class _MyAppState extends State<MyApp> {
                 //
               },
               child: const Text('Remove'),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            ElevatedButton(
+              onPressed: () {
+                //
+                final newTask = DownloaderTaskCollection()
+                  ..mediaId = isar!.downloaderTaskCollections.autoIncrement()
+                  ..tag = faker.person.name()
+                  ..url = faker.internet.uri('http');
+
+                isar!.write((isar) {
+                  return isar.downloaderTaskCollections.put(newTask);
+                });
+
+                print('newTask: ${newTask.mediaId}');
+                setState(() {});
+
+                var createdTask = isar!.downloaderTaskCollections
+                    .where()
+                    .mediaIdEqualTo(newTask.mediaId);
+
+                print('newTask created: ${newTask.mediaId} ${newTask.tag}');
+                setState(() {});
+              },
+              child: const Text('Task'),
             ),
             // ListView.builder(
             //   itemCount: isar!.users.count(),
