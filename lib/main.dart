@@ -132,9 +132,11 @@ class _MyAppState extends State<MyApp> {
 
                 var createdTask = isar!.downloaderTaskCollections
                     .where()
-                    .mediaIdEqualTo(newTask.mediaId);
+                    .mediaIdEqualTo(newTask.mediaId)
+                    .findFirst();
 
-                print('newTask created: ${newTask.mediaId} ${newTask.tag}');
+                print(
+                    'newTask created: ${createdTask?.mediaId} ${createdTask?.tag}');
                 setState(() {});
               },
               child: const Text('Task'),
