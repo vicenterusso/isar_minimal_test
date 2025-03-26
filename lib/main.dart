@@ -1,3 +1,5 @@
+import 'package:faker/faker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:isar_community/isar.dart';
 import 'package:isar_minimal_test/user.dart';
@@ -19,6 +21,8 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  List<User> users = [];
+
   @override
   void initState() {
     super.initState();
@@ -29,40 +33,18 @@ class _MyAppState extends State<MyApp> {
     final dir = await getApplicationDocumentsDirectory();
     isar = await Isar.open(
       [UserSchema],
+      name: 'isar_minimimal_test',        
       directory: dir.path,
     );
+    _refreshUsers();
+  }
 
-    final newUser = User()
-      ..name = 'Jane Doe'
-      ..age = 36;
-
-    await isar!.writeTxn(() {
-      return isar!.users.put(newUser);
-    });
-
-    if (newUser.id != null) {
-      final userFindAll = await isar!.users.where().findAll();
-      print('userFindAll? ${userFindAll.length}');
-      final userFindFirst = await isar!.users
-          .where()
-          .idEqualTo(
-            newUser.id!,
-          )
-          .findFirst();
-      print('userFindFirst? ${userFindFirst}');
-
-      final existingUser = await isar!.users.get(newUser.id!);
-      print('${existingUser?.name} ${existingUser?.id}');
-      if (existingUser != null) {
-        var deleted = await isar!.writeTxn(() {
-          return isar!.users.delete(existingUser.id!);
-        });
-        if (deleted == true) {
-          print('deleted record');
-        } else {
-          print('dont deleted record');
-        }
-      }
+  Future<void> _refreshUsers() async {
+    if (isar != null) {
+      final result = await isar!.users.where().findAll();
+      setState(() {
+        users = result;
+      });
     }
   }
 
@@ -74,8 +56,65 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Isar Demo'),
         ),
-        body: const Center(
-          child: Text('Hello World'),
+        body: Column(
+          children: [
+            const Center(
+              child: Text('Hello World'),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final newUser = User()
+                  ..name = faker.person.name()
+                  ..email = faker.internet.email();
+
+                await isar!.writeTxn(() async {
+                  await isar!.users.put(newUser);
+                });
+
+                _refreshUsers();
+              },
+              child: const Text('Add'),
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final existingUser = await isar!.users.where().findFirst();
+                if (existingUser != null) {
+                  print('${existingUser.name} ${existingUser.id}');
+                  
+                  final deleted = await isar!.writeTxn(() async {
+                    return await isar!.users.delete(existingUser.id);
+                  });
+                  
+                  if (deleted) {
+                    print('deleted record');
+                  } else {
+                    print('did not delete record');
+                  }
+                  
+                  _refreshUsers();
+                }
+              },
+              child: const Text('Remove'),
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: users.length,
+                itemBuilder: (context, index) {
+                  final item = users[index];
+                  return ListTile(
+                    title: Text('${item.id}: ${item.name}'),
+                    subtitle: Text(item.email ?? 'No email provided'),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
