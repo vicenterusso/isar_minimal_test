@@ -1,12 +1,10 @@
-import 'package:isar/isar.dart';
+import 'package:isar_community/isar_community.dart';
 
 part 'user.g.dart';
 
 @collection
 class User {
-  late int id;
-
+  Id? id;
   String? name;
-
   String? email;
 }

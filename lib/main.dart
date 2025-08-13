@@ -1,8 +1,7 @@
 import 'package:faker/faker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:isar/isar.dart';
-import 'package:isar_minimal_test/user.dart';
+import 'package:isar_community/isar_community.dart';
+import 'package:isar_community_minimal_test/user.dart';
 import 'package:path_provider/path_provider.dart';
 
 Isar? isar;
@@ -28,22 +27,12 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> init() async {
-    if (kIsWeb) {
-      await Isar.initialize();
-      isar = Isar.open(
-        name: 'isar_minimimal_test',
-        schemas: [UserSchema],
-        directory: Isar.sqliteInMemory,
-        engine: IsarEngine.sqlite,
-      );
-    } else {
-      final dir = await getApplicationDocumentsDirectory();
-      isar = await Isar.openAsync(
-        name: 'isar_minimimal_test',
-        schemas: [UserSchema],
-        directory: dir.path,
-      );
-    }
+    final dir = await getApplicationDocumentsDirectory();
+    isar = await Isar.open(
+      [UserSchema],
+      directory: dir.path,
+    );
+    setState(() {});
   }
 
   @override
@@ -56,9 +45,6 @@ class _MyAppState extends State<MyApp> {
         ),
         body: Column(
           children: [
-            const Center(
-              child: Text('Hello World'),
-            ),
             const SizedBox(
               height: 10,
             ),
@@ -67,12 +53,11 @@ class _MyAppState extends State<MyApp> {
                 //
 
                 final newUser = User()
-                  ..id = isar!.users.autoIncrement()
                   ..name = faker.person.name()
                   ..email = faker.internet.email();
 
-                isar!.write((isar) {
-                  return isar.users.put(newUser);
+                isar!.writeTxnSync(() async {
+                  return isar!.users.putSync(newUser);
                 });
 
                 setState(() {});
@@ -87,11 +72,11 @@ class _MyAppState extends State<MyApp> {
               onPressed: () {
                 //
 
-                final existingUser = isar!.users.where().findFirst();
+                final existingUser = isar!.users.where().findFirstSync();
                 print('${existingUser?.name} ${existingUser?.id}');
-                if (existingUser != null) {
-                  var deleted = isar!.write((isar) {
-                    return isar.users.delete(existingUser.id);
+                if (existingUser != null && existingUser.id != null) {
+                  var deleted = isar!.writeTxnSync(() {
+                    return isar!.users.deleteSync(existingUser.id!);
                   });
                   if (deleted == true) {
                     print('deleted record');
@@ -114,7 +99,7 @@ class _MyAppState extends State<MyApp> {
             //   },
             // ),
             for (var item
-                in (isar == null ? [] : isar!.users.where().findAll()))
+                in (isar == null ? [] : isar!.users.where().findAllSync()))
               Text('${item.id}: ${item.name} (${item.email})'),
           ],
         ),
