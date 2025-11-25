@@ -9,15 +9,15 @@ dependencies:
   flutter:
     sdk: flutter
 
-
   cupertino_icons: ^1.0.2
   path_provider: ^2.1.2
-  isar:
+  isar_community:
     hosted: https://pub.isar-community.dev
-    version: ^4.0.2
-  isar_flutter_libs:
+    version: 4.1.0
+  isar_community_flutter_libs:
     hosted: https://pub.isar-community.dev
-    version: ^4.0.2
+    version: 4.1.0
+  faker: ^2.1.0
 
 dev_dependencies:
   flutter_test:
@@ -30,13 +30,8 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
-# dependency_overrides:
-#   isar:
-#     path: ../isar/packages/isar
-#   isar_flutter_libs:
-#     path: ../isar/packages/isar_flutter_libs
-    
-# dev_dependency_overrides:
-#   isar_generator:
-#     path: ../isar/packages/isar_generator
-    
+dependency_overrides:
+  isar_community:
+    path: ../isar_community/packages/isar_community
+  isar_community_flutter_libs:
+    path: ../isar_community/packages/isar_community_flutter_libs
