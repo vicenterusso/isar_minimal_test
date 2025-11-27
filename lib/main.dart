@@ -57,7 +57,7 @@ class _MyAppState extends State<MyApp> {
         kIsWeb ? Isar.sqliteInMemory : await resolveIsarDirectory(_isarName);
 
     if (kIsWeb) {
-      isar = Isar.open(
+      isar = await Isar.openAsync(
         name: _isarName,
         schemas: [UserSchema],
         directory: directory,
