@@ -50,7 +50,7 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> _initializeIsar() async {
     if (kIsWeb) {
-      await Isar.initialize('isar.wasm');
+      await Isar.initialize('isar_1764614962.wasm');
     }
 
     final directory =
@@ -60,7 +60,7 @@ class _MyAppState extends State<MyApp> {
       isar = await Isar.openAsync(
         name: _isarName,
         schemas: [UserSchema],
-        directory: directory,
+        directory: '',
         engine: IsarEngine.sqlite,
       );
     } else {
